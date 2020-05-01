@@ -91,6 +91,10 @@ The_How_markdown = \
     * Sum of the distance of all mails that was moved for each month
     * Sum of the distance of all freight (cargo) travelled for each month
     \n
+    In these features there is no leakage, bacause of the "efficient market theory".
+    It basically says that stock price changes only after the realease of a news, so any data and news out there,
+    already has been reflected on the price.
+    \n
     Then since each airline has multiple flights per month, I grouped the whole dataset based on carrier name, year nad month.
     """
 
@@ -159,7 +163,7 @@ for symbol in y_test_y_pred_df_dict_linear_regression.keys():
                     #      'type': 'scatter', 'name': 'Mean'},
                     # ],
                     'layout': {
-                        'title': list_of_publicly_traded_airlines[symbol],
+                        'title': list_of_publicly_traded_airlines[symbol]+" - Regression - Modeling on the test dataset",
                         'xaxis': {
                             'title': 'Date'
                         },
@@ -190,7 +194,7 @@ for symbol in y_test_y_pred_df_dict_linear_regression.keys():
                     #      'type': 'scatter', 'name': 'Mean'},
                     # ],
                     'layout': {
-                        'title': list_of_publicly_traded_airlines[symbol],
+                        'title': list_of_publicly_traded_airlines[symbol]+" - Regression - Modeling on the whole dataset",
                         'xaxis': {
                             'title': 'Date'
                         },
@@ -285,7 +289,7 @@ for symbol in y_test_y_pred_df_dict_linear_regression.keys():
     )
 
 
-row3 = dcc.Tabs(list_of_tabs, style={"margin": "20 auto 20 auto"})
+row3 = dcc.Tabs(list_of_tabs, value='UAL', style={"margin": "20 auto 20 auto"})
 
 #### <<<<~~~~----( Tabbed graph 2 )----~~~~>>>> ####
 
@@ -318,7 +322,7 @@ for symbol in y_test_y_pred_df_dict_random_forest.keys():
                          'type': 'scatter', 'name': 'Mean'},
                     ],
                     'layout': {
-                        'title': list_of_publicly_traded_airlines[symbol],
+                        'title': list_of_publicly_traded_airlines[symbol]+" - Random Forest - Modeling on the test dataset",
                         'xaxis': {
                             'title': 'Date'
                         },
@@ -339,7 +343,7 @@ for symbol in y_test_y_pred_df_dict_random_forest.keys():
                         'type': 'scatter', 'name': 'Mean'},
                     ],
                 'layout': {
-                    'title': list_of_publicly_traded_airlines[symbol],
+                    'title': list_of_publicly_traded_airlines[symbol]+" - Random Forest - Modeling on the test dataset",
                     'xaxis': {
                         'title': 'Date'
                     },
@@ -381,7 +385,25 @@ for symbol in y_test_y_pred_df_dict_random_forest.keys():
         }
     ]
 
-
+    table_columns4 = [
+        "Baseline mean, MAE",
+        "Baseline mean, MSE",
+        "Baseline median, MAE",
+        "Baseline median, MSE",
+        "After modeling, MAE",
+        "After modeling, MSE",
+        ]
+    # set_trace()
+    table_data4 = [
+        {
+            "Baseline mean, MAE": mean_absolute_error(show_df_all["y test"], [show_df_all["y test"].mean()]*len(show_df_all["y test"])),
+            "Baseline mean, MSE": mean_squared_error(show_df_all["y test"], [show_df_all["y test"].mean()]*len(show_df_all["y test"])),
+            "Baseline median, MAE": mean_absolute_error(show_df_all["y test"], [show_df_all["y test"].median()]*len(show_df_all["y test"])),
+            "Baseline median, MSE": mean_squared_error(show_df_all["y test"], [show_df_all["y test"].median()]*len(show_df_all["y test"])),
+            "After modeling, MAE": mean_absolute_error(show_df_all["y test"], show_df_all["y pred"]),
+            "After modeling, MSE": mean_squared_error(show_df_all["y test"], show_df_all["y pred"]),
+        }
+    ]
 
     # table_data = dict(zip(table_columns, table_data))
 
@@ -409,15 +431,15 @@ for symbol in y_test_y_pred_df_dict_random_forest.keys():
                 # )
 
                 dash_table.DataTable(
-                    columns=[{"name": i, "id": i} for i in table_columns3],
-                    data=table_data3,
+                    columns=[{"name": i, "id": i} for i in table_columns4],
+                    data=table_data4,
                 )
             ]
         ))
     )
 
 
-row4 = dcc.Tabs(list_of_tabs, style={"margin": "20 auto 20 auto"})
+row4 = dcc.Tabs(list_of_tabs, value='UAL', style={"margin": "20 auto 20 auto"})
 
 # fig = go.Figure()
 # fig.add_trace(go.Scatter(x=date_all.Date, y=y_all.Close, name='y_pred_all'))
@@ -462,6 +484,46 @@ def get_data():
 
 #### <<<<~~~~----( The What )----~~~~>>>> ####
 
+The_Explanation_markdown = \
+    """
+
+    ## Explanation
+    So as you can see, nearly all of the models are doing very bad.
+    Some of them even don't perform better than none of the baselines.
+    One thing I can think of is that, because I only did modeling on earnings based features, it is performing poorly.
+    Sometimes the expenses may be so hight that a company is not profitable that month.
+    \n Also another thing I could add to my model is the oil price, because it's one of the main sources of expense for airlines.
+    """
+
+The_Explanation_row = dbc.Row(
+    [
+        dcc.Markdown(
+            The_Explanation_markdown
+        ),
+        # dcc.Link(dbc.Button('Your Call To Action', color='primary'), href='/predictions')
+    ],
+    style={"font-family": "Times New Roman", "font-size": "21px"}
+)
+
+Regression_Title = dbc.Row(
+    [
+        dcc.Markdown(
+            "## Regression model"
+        ),
+        # dcc.Link(dbc.Button('Your Call To Action', color='primary'), href='/predictions')
+    ],
+    style={"font-family": "Times New Roman", "font-size": "21px"}
+)
+
+Random_Forest_Title = dbc.Row(
+    [
+        dcc.Markdown(
+            "## Random forest model"
+        ),
+        # dcc.Link(dbc.Button('Your Call To Action', color='primary'), href='/predictions')
+    ],
+    style={"font-family": "Times New Roman", "font-size": "21px"}
+)
 
 
-layout = [The_Abstract_row, The_Why_row, Code1, The_How_row, row3, row4]
+layout = [The_Abstract_row, The_Why_row, Code1, The_How_row, Regression_Title, row3, Random_Forest_Title, row4, The_Explanation_row]
