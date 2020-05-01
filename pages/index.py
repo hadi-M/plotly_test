@@ -66,7 +66,13 @@ The_How_markdown = \
 
     ## The How
     So my hypothesis was that stock market is rational and based on the earnings of each airline, it moves accordingly.
-    I downloaded the [asd]("https://www.google.com/")
+    I downloaded the monthly flight data from [bureau of transportation statistics]("https://www.transtats.bts.gov/DL_SelectFields.asp?Table_ID=308").
+    I could download them by manually but I used selenium to download the files automatically, eventhough it took more time. It was neater.
+    Then I unzipped them, and merged them via code, so basically just running my python notebook file, would give you all the data and the models.
+    \n 
+    After reading the data and cleaning it
+    Then since each airline has multiple flights per month, I grouped the whole dataset based on carrier name, year nad month.
+    then created a 
     
     """
 
