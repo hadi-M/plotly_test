@@ -96,7 +96,7 @@ date_all = pd.read_csv("date_all.csv", index_col=False).drop("Unnamed: 0", axis=
 # set_trace()
 date_all = pd.to_datetime(date_all["Date"], infer_datetime_format=True)
 
-y_test_y_pred_df_dict = load_object("y_test_y_pred_df_dict.pickl")
+y_test_y_pred_df_dict_linear_regression = load_object("./y_test_y_pred_df_dict_linear_regression.pickl")
 linear_regression_models_df = load_object("linear_regression_models_df.pickl")
 list_of_tabs = []
 
@@ -114,10 +114,10 @@ list_of_publicly_traded_airlines = {
     "SKYW": "SkyWest Airlines Inc.",
 }
 
-for symbol in y_test_y_pred_df_dict.keys():
+for symbol in y_test_y_pred_df_dict_linear_regression.keys():
     # data_tmp = final_data_dict[symbol]
     # fig1 = go.Figure()
-    show_df = y_test_y_pred_df_dict[symbol]
+    show_df = y_test_y_pred_df_dict_linear_regression[symbol]
     lr_model = linear_regression_models_df[symbol]
     # fig1.add_trace(go.Scatter(x=show_df.index, y=show_df["y test"], name='predicted'))
     # fig1.add_trace(go.Scatter(x=show_df.index, y=show_df["y pred"], name='real'))
