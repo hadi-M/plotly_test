@@ -60,6 +60,8 @@ The_Why_markdown = \
     This happens to everyone who is learning coding out there. While learning something new, you just start confirming concepts you just learnt, to see that they really work as they are intended, by
     connecting those concepts to stuff that you've already confirmed, and you are familiar with them.\n
     Here I wanted to confirm the little knowledge I have of finance by using regression.
+    \n
+    Also, This is a sample code of my files, it's quite readable, I encourage you to read it:
     """
 
 The_Why_row = dbc.Row(
