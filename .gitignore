@@ -108,3 +108,4 @@ X_all.csv
 y_all.csv
 y_test_y_pred_df_dict.pickl
 date_all.csv
+data/data.csv
