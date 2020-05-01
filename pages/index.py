@@ -4,6 +4,7 @@ import dash_bootstrap_components as dbc
 import dash_core_components as dcc
 import dash_html_components as html
 from dash.dependencies import Input, Output
+import dash_table
 import plotly.express as px
 import pandas as pd
 
@@ -13,6 +14,7 @@ import plotly.graph_objects as go
 from pdb import set_trace 
 import pickle
 
+from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
 # 2 column layout. 1st column width = 4/12
 # https://dash-bootstrap-components.opensource.faculty.ai/l/components/layout
 
@@ -24,9 +26,15 @@ def load_object(file_name):
     return obj
 
 
-The_What_markdown = \
+The_Abstract_markdown = \
     """
-    ## The What
+    ## The Abstract
+    In this post I wanted to check if the airlines' industry of stock market is rational or not.
+    By "rational" here, I mean to check if the earning of the airline is reflected on the price of the stock or not.
+    \n My data is monthly based and I have 3 features:
+    * Sum of the distance of all passenger travelled for each month
+    * Sum of the distance of all mails that was moved for each month
+    * Sum of the distance of all freight (cargo) travelled for each month
 
     """
 
@@ -38,13 +46,14 @@ The_Why_markdown = \
     ## The Why
     This happens to everyone who is learning coding out there. While learning something new, you just start confirming concepts you just learnt, to see that they really work as they are intended, by
     connecting those concepts to stuff that you've already confirmed, and you are familiar with them.\n
-    Here I wanted to confirm the little knowledge I have of finance
+    Here I wanted to confirm the little knowledge I have of finance by using regression.
+
     """
 
-The_What_row = dbc.Row(
+The_Abstract_row = dbc.Row(
     [
         dcc.Markdown(
-            The_Why_markdown
+            The_Abstract_markdown
         ),
         # dcc.Link(dbc.Button('Your Call To Action', color='primary'), href='/predictions')
     ],
@@ -90,6 +99,8 @@ for symbol in y_test_y_pred_df_dict.keys():
                             'type': 'scatter', 'name': 'Stock Price'},
                         {'x': show_df.index, 'y': show_df["y pred"],
                          'type': 'scatter', 'name': 'Predicted'},
+                        {'x': show_df.index, 'y': [show_df["y pred"].mean()]*len(show_df["y pred"]),
+                         'type': 'scatter', 'name': 'Mean'},
                     ],
                     'layout': {
                         'title': list_of_publicly_traded_airlines[symbol],
@@ -98,8 +109,9 @@ for symbol in y_test_y_pred_df_dict.keys():
                         },
                         'yaxis': {
                             'title': 'y value'
-                        }
-                    }
+                        },
+                        'annotations': 'Text G'
+                    },
                 }
             )
 
@@ -112,11 +124,62 @@ for symbol in y_test_y_pred_df_dict.keys():
     #     step=100,
     #     marks={i: str(i) for i in range(1, 1000, 100)}
     # )
-
+    # correlation = corrcoef(show_df["y pred"], show_df["y test"])[0, 1]
     # list_of_tabs.append(dbc.Row([dcc.Tab(label=symbol, children=fig2), dcc.Tab(label=symbol, children=fig2)]))
+    table_columns = [
+        "Baseline mean, MAE",
+        "Baseline mean, MSE",
+        "Baseline median, MAE",
+        "Baseline median, MSE",
+        "After modeling, MAE",
+        "After modeling, MSE",
+        "After modeling, R2"
+        ]
+    # set_trace()
+    table_data = [
+        {
+            "Baseline mean, MAE": mean_absolute_error(show_df["y test"], [show_df["y test"].mean()]*len(show_df["y test"])),
+            "Baseline mean, MSE": mean_squared_error(show_df["y test"], [show_df["y test"].mean()]*len(show_df["y test"])),
+            "Baseline median, MAE": mean_absolute_error(show_df["y test"], [show_df["y test"].median()]*len(show_df["y test"])),
+            "Baseline median, MSE": mean_squared_error(show_df["y test"], [show_df["y test"].median()]*len(show_df["y test"])),
+            "After modeling, MAE": mean_absolute_error(show_df["y test"], show_df["y pred"]),
+            "After modeling, MSE": mean_squared_error(show_df["y test"], show_df["y pred"]),
+            "After modeling, R2": r2_score(show_df["y test"], show_df["y pred"])
+        }
+    ]
+
+    # table_data = [
+    #     {
+    #         "Baseline mean, MAE": "2",
+    #         "Baseline mean, MSE": "2",
+    #         "Baseline median, MAE": "2",
+    #         "Baseline median, MSE": "2",
+    #         "After modeling, MAE": "2",
+    #         "After modeling, MSE": "2",
+    #         "After modeling, R2": "2"
+    #     }
+    # ]
+
+    # table_data = dict(zip(table_columns, table_data))
+
     list_of_tabs.append(
         # dbc.Col([dcc.Tab(label=symbol, value=symbol, children=fig2), slider2])
-        dcc.Tab(label=symbol, value=symbol, children=fig)
+        # dcc.Tab(label=symbol, value=symbol, children=fig)
+        dcc.Tab(label=symbol, value=symbol, children=dbc.Col(
+            [
+                fig,
+                # html.Div(
+                #     # html.P(correlation, style={"color": "red", "text-align": "center", "font-size": 20}),
+                #     html.P("correlation", style={"color": "red", "text-align": "center", "font-size": 20}),
+                #     # style={"text"}
+                # )
+
+                dash_table.DataTable(
+                    columns=[{"name": i, "id": i} for i in table_columns],
+                    data=table_data,
+                )
+            ]
+        ))
     )
 
 
@@ -168,4 +231,4 @@ app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
 
 
 
-layout = [The_What_row, row3, column2, column2]
+layout = [The_Abstract_row, row3, column2, column2]
