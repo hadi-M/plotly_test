@@ -83,39 +83,40 @@ for symbol in y_test_y_pred_df_dict.keys():
     # fig1.add_trace(go.Scatter(x=show_df.index, y=show_df["y test"], name='predicted'))
     # fig1.add_trace(go.Scatter(x=show_df.index, y=show_df["y pred"], name='real'))
     
-    # fig = dcc.Graph(
-    #             figure={
-    #                 'data': [
-    #                     {'x': show_df.index, 'y': show_df["y test"],
-    #                         'type': 'scatter', 'name': 'Stock Price'},
-    #                     {'x': show_df.index, 'y': show_df["y pred"],
-    #                      'type': 'scatter', 'name': 'Predicted'},
-    #                 ],
-    #                 'layout': {
-    #                     'title': list_of_publicly_traded_airlines[symbol],
-    #                     'xaxis': {
-    #                         'title': 'Date'
-    #                     },
-    #                     'yaxis': {
-    #                         'title': 'y value'
-    #                     }
-    #                 }
-    #             }
-    #         )
+    fig = dcc.Graph(
+                figure={
+                    'data': [
+                        {'x': show_df.index, 'y': show_df["y test"],
+                            'type': 'scatter', 'name': 'Stock Price'},
+                        {'x': show_df.index, 'y': show_df["y pred"],
+                         'type': 'scatter', 'name': 'Predicted'},
+                    ],
+                    'layout': {
+                        'title': list_of_publicly_traded_airlines[symbol],
+                        'xaxis': {
+                            'title': 'Date'
+                        },
+                        'yaxis': {
+                            'title': 'y value'
+                        }
+                    }
+                }
+            )
 
-    fig2 = dcc.Graph(id='regression-{}'.format(symbol)),
-    slider2 = dcc.Slider(
-        id='slider-PASSENGERS_x_DISTANCE-{}'.format(symbol),
-        min=1,
-        max=1000,
-        value=1,
-        step=100,
-        marks={i: str(i) for i in range(1, 1000, 100)}
-    )
+    # fig2 = dcc.Graph(id='regression-{}'.format(symbol)),
+    # slider2 = dcc.Slider(
+    #     id='slider-PASSENGERS_x_DISTANCE-{}'.format(symbol),
+    #     min=1,
+    #     max=1000,
+    #     value=1,
+    #     step=100,
+    #     marks={i: str(i) for i in range(1, 1000, 100)}
+    # )
 
     # list_of_tabs.append(dbc.Row([dcc.Tab(label=symbol, children=fig2), dcc.Tab(label=symbol, children=fig2)]))
     list_of_tabs.append(
-        dbc.Col([dcc.Tab(label=symbol, value=symbol, children=fig2), slider2])
+        # dbc.Col([dcc.Tab(label=symbol, value=symbol, children=fig2), slider2])
+        dcc.Tab(label=symbol, value=symbol, children=fig)
     )
 
 
