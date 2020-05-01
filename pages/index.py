@@ -63,9 +63,12 @@ The_Abstract_row = dbc.Row(
  
 #### <<<<~~~~----( Tabbed graph 1 )----~~~~>>>> ####
 
-X_all = pd.read_csv("X_all.csv")
-y_all = pd.read_csv("y_all.csv")
-date_all = pd.read_csv("date_all.csv")
+X_all = pd.read_csv("X_all.csv", index_col=False).drop("Unnamed: 0", axis=1)
+y_all = pd.read_csv("y_all.csv", index_col=False).drop("Unnamed: 0", axis=1)
+
+date_all = pd.read_csv("date_all.csv", index_col=False).drop("Unnamed: 0", axis=1)
+# set_trace()
+date_all = pd.to_datetime(date_all["Date"], infer_datetime_format=True)
 
 y_test_y_pred_df_dict = load_object("y_test_y_pred_df_dict.pickl")
 linear_regression_models_df = load_object("linear_regression_models_df.pickl")
@@ -87,12 +90,162 @@ list_of_publicly_traded_airlines = {
 
 for symbol in y_test_y_pred_df_dict.keys():
     # data_tmp = final_data_dict[symbol]
-    fig1 = go.Figure()
+    # fig1 = go.Figure()
     show_df = y_test_y_pred_df_dict[symbol]
+    lr_model = linear_regression_models_df[symbol]
     # fig1.add_trace(go.Scatter(x=show_df.index, y=show_df["y test"], name='predicted'))
     # fig1.add_trace(go.Scatter(x=show_df.index, y=show_df["y pred"], name='real'))
     
-    fig = dcc.Graph(
+    fig1 = dcc.Graph(
+                figure={
+                    'data': [
+                        {'x': show_df.index.values, 'y': show_df["y test"].values,
+                            'type': 'scatter', 'name': 'Stock Price'},
+                        {'x': show_df.index.values, 'y': show_df["y pred"],
+                         'type': 'scatter', 'name': 'Predicted'},
+                        {'x': show_df.index.values, 'y': [show_df["y pred"].mean()]*len(show_df["y pred"]),
+                         'type': 'scatter', 'name': 'Mean'},
+                    ],
+                    # 'data': [
+                    #     {'x': show_df.index, 'y': show_df["y test"],
+                    #         'type': 'scatter', 'name': 'Stock Price'},
+                    #     {'x': show_df.index, 'y': show_df["y pred"],
+                    #      'type': 'scatter', 'name': 'Predicted'},
+                    #     {'x': show_df.index, 'y': [show_df["y pred"].mean()]*len(show_df["y pred"]),
+                    #      'type': 'scatter', 'name': 'Mean'},
+                    # ],
+                    'layout': {
+                        'title': list_of_publicly_traded_airlines[symbol],
+                        'xaxis': {
+                            'title': 'Date'
+                        },
+                        'yaxis': {
+                            'title': 'y value'
+                        },
+                    },
+                }
+            )
+    # set_trace()
+    show_df_all = pd.DataFrame({"y test": y_all.values.flatten(), "y pred": lr_model.predict(X_all)}, index=date_all)
+    fig2 = dcc.Graph(
+                figure={
+                    'data': [
+                        {'x': show_df_all.index.values, 'y': show_df_all["y test"].values,
+                            'type': 'scatter', 'name': 'Stock Price'},
+                        {'x': show_df_all.index.values, 'y': show_df_all["y pred"],
+                         'type': 'scatter', 'name': 'Predicted'},
+                        {'x': show_df_all.index.values, 'y': [show_df_all["y pred"].mean()]*len(show_df_all["y pred"]),
+                         'type': 'scatter', 'name': 'Mean'},
+                    ],
+                    # 'data': [
+                    #     {'x': show_df.index, 'y': show_df["y test"],
+                    #         'type': 'scatter', 'name': 'Stock Price'},
+                    #     {'x': show_df.index, 'y': show_df["y pred"],
+                    #      'type': 'scatter', 'name': 'Predicted'},
+                    #     {'x': show_df.index, 'y': [show_df["y pred"].mean()]*len(show_df["y pred"]),
+                    #      'type': 'scatter', 'name': 'Mean'},
+                    # ],
+                    'layout': {
+                        'title': list_of_publicly_traded_airlines[symbol],
+                        'xaxis': {
+                            'title': 'Date'
+                        },
+                        'yaxis': {
+                            'title': 'y value'
+                        },
+                    },
+                }
+            )
+
+    table_columns1 = [
+        "Baseline mean, MAE",
+        "Baseline mean, MSE",
+        "Baseline median, MAE",
+        "Baseline median, MSE",
+        "After modeling, MAE",
+        "After modeling, MSE",
+        "After modeling, R2"
+        ]
+    # set_trace()
+    table_data1 = [
+        {
+            "Baseline mean, MAE": mean_absolute_error(show_df["y test"], [show_df["y test"].mean()]*len(show_df["y test"])),
+            "Baseline mean, MSE": mean_squared_error(show_df["y test"], [show_df["y test"].mean()]*len(show_df["y test"])),
+            "Baseline median, MAE": mean_absolute_error(show_df["y test"], [show_df["y test"].median()]*len(show_df["y test"])),
+            "Baseline median, MSE": mean_squared_error(show_df["y test"], [show_df["y test"].median()]*len(show_df["y test"])),
+            "After modeling, MAE": mean_absolute_error(show_df["y test"], show_df["y pred"]),
+            "After modeling, MSE": mean_squared_error(show_df["y test"], show_df["y pred"]),
+            "After modeling, R2": r2_score(show_df["y test"], show_df["y pred"])
+        }
+    ]
+
+    # table_data = [
+    #     {
+    #         "Baseline mean, MAE": "2",
+    #         "Baseline mean, MSE": "2",
+    #         "Baseline median, MAE": "2",
+    #         "Baseline median, MSE": "2",
+    #         "After modeling, MAE": "2",
+    #         "After modeling, MSE": "2",
+    #         "After modeling, R2": "2"
+    #     }
+    # ]
+
+    # table_data = dict(zip(table_columns, table_data))
+
+    list_of_tabs.append(
+        # dbc.Col([dcc.Tab(label=symbol, value=symbol, children=fig2), slider2])
+        # dcc.Tab(label=symbol, value=symbol, children=fig)
+        dcc.Tab(label=symbol, value=symbol, children=dbc.Col(
+            [
+                fig1,
+                # html.Div(
+                #     # html.P(correlation, style={"color": "red", "text-align": "center", "font-size": 20}),
+                #     html.P("correlation", style={"color": "red", "text-align": "center", "font-size": 20}),
+                #     # style={"text"}
+                # )
+
+                dash_table.DataTable(
+                    columns=[{"name": i, "id": i} for i in table_columns1],
+                    data=table_data1,
+                 ),
+                fig2,
+                # # html.Div(
+                # #     # html.P(correlation, style={"color": "red", "text-align": "center", "font-size": 20}),
+                # #     html.P("correlation", style={"color": "red", "text-align": "center", "font-size": 20}),
+                # #     # style={"text"}
+                # # )
+
+                # dash_table.DataTable(
+                #     columns=[{"name": i, "id": i} for i in table_columns1],
+                #     data=table_data1,
+                # )
+            ]
+        ))
+    )
+
+
+row3 = dcc.Tabs(list_of_tabs, style={"margin": "auto"})
+
+#### <<<<~~~~----( Tabbed graph 2 )----~~~~>>>> ####
+
+X_all = pd.read_csv("X_all.csv")
+y_all = pd.read_csv("y_all.csv")
+date_all = pd.read_csv("date_all.csv")
+
+y_test_y_pred_df_dict_random_forest = load_object("y_test_y_pred_df_dict_random_forest.pickl")
+random_forest_models_df = load_object("random_forest_models_df.pickl")
+list_of_tabs = []
+
+for symbol in y_test_y_pred_df_dict_random_forest.keys():
+    # data_tmp = final_data_dict[symbol]
+    # fig3 = go.Figure()
+    model = random_forest_models_df[symbol]
+    show_df = y_test_y_pred_df_dict_random_forest[symbol]
+    # fig1.add_trace(go.Scatter(x=show_df.index, y=show_df["y test"], name='predicted'))
+    # fig1.add_trace(go.Scatter(x=show_df.index, y=show_df["y pred"], name='real'))
+    # set_trace
+    fig3 = dcc.Graph(
                 figure={
                     'data': [
                         {'x': show_df.index, 'y': show_df["y test"],
@@ -126,17 +279,16 @@ for symbol in y_test_y_pred_df_dict.keys():
     # )
     # correlation = corrcoef(show_df["y pred"], show_df["y test"])[0, 1]
     # list_of_tabs.append(dbc.Row([dcc.Tab(label=symbol, children=fig2), dcc.Tab(label=symbol, children=fig2)]))
-    table_columns = [
+    table_columns3 = [
         "Baseline mean, MAE",
         "Baseline mean, MSE",
         "Baseline median, MAE",
         "Baseline median, MSE",
         "After modeling, MAE",
-        "After modeling, MSE",
-        "After modeling, R2"
+        "After modeling, MSE"
         ]
     # set_trace()
-    table_data = [
+    table_data3 = [
         {
             "Baseline mean, MAE": mean_absolute_error(show_df["y test"], [show_df["y test"].mean()]*len(show_df["y test"])),
             "Baseline mean, MSE": mean_squared_error(show_df["y test"], [show_df["y test"].mean()]*len(show_df["y test"])),
@@ -144,7 +296,6 @@ for symbol in y_test_y_pred_df_dict.keys():
             "Baseline median, MSE": mean_squared_error(show_df["y test"], [show_df["y test"].median()]*len(show_df["y test"])),
             "After modeling, MAE": mean_absolute_error(show_df["y test"], show_df["y pred"]),
             "After modeling, MSE": mean_squared_error(show_df["y test"], show_df["y pred"]),
-            "After modeling, R2": r2_score(show_df["y test"], show_df["y pred"])
         }
     ]
 
@@ -167,7 +318,7 @@ for symbol in y_test_y_pred_df_dict.keys():
         # dcc.Tab(label=symbol, value=symbol, children=fig)
         dcc.Tab(label=symbol, value=symbol, children=dbc.Col(
             [
-                fig,
+                fig3,
                 # html.Div(
                 #     # html.P(correlation, style={"color": "red", "text-align": "center", "font-size": 20}),
                 #     html.P("correlation", style={"color": "red", "text-align": "center", "font-size": 20}),
@@ -175,16 +326,26 @@ for symbol in y_test_y_pred_df_dict.keys():
                 # )
 
                 dash_table.DataTable(
-                    columns=[{"name": i, "id": i} for i in table_columns],
-                    data=table_data,
+                    columns=[{"name": i, "id": i} for i in table_columns3],
+                    data=table_data3,
+                ),
+                fig3,
+                # html.Div(
+                #     # html.P(correlation, style={"color": "red", "text-align": "center", "font-size": 20}),
+                #     html.P("correlation", style={"color": "red", "text-align": "center", "font-size": 20}),
+                #     # style={"text"}
+                # )
+
+                dash_table.DataTable(
+                    columns=[{"name": i, "id": i} for i in table_columns3],
+                    data=table_data3,
                 )
             ]
         ))
     )
 
 
-row3 = dcc.Tabs(list_of_tabs, style={"margin": "auto"})
-
+row4 = dcc.Tabs(list_of_tabs, style={"margin": "auto"})
 
 # fig = go.Figure()
 # fig.add_trace(go.Scatter(x=date_all.Date, y=y_all.Close, name='y_pred_all'))
@@ -231,4 +392,4 @@ app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
 
 
 
-layout = [The_Abstract_row, row3, column2, column2]
+layout = [The_Abstract_row, row3, column2, column2, row4]
