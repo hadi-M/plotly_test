@@ -11,7 +11,7 @@ import pandas as pd
 # Imports from this application
 from app import app
 import plotly.graph_objects as go
-from pdb import set_trace 
+from pdb import set_trace
 import pickle
 
 from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
@@ -47,7 +47,27 @@ The_Why_markdown = \
     This happens to everyone who is learning coding out there. While learning something new, you just start confirming concepts you just learnt, to see that they really work as they are intended, by
     connecting those concepts to stuff that you've already confirmed, and you are familiar with them.\n
     Here I wanted to confirm the little knowledge I have of finance by using regression.
+    """
 
+The_Abstract_row = dbc.Row(
+    [
+        dcc.Markdown(
+            The_Abstract_markdown
+        ),
+        # dcc.Link(dbc.Button('Your Call To Action', color='primary'), href='/predictions')
+    ],
+    style={"font-family": "Times New Roman", "font-size": "21px"}
+)
+
+#### <<<<~~~~----( The Why )----~~~~>>>> ####
+
+The_How_markdown = \
+    """
+
+    ## The How
+    So my hypothesis was that stock market is rational and based on the earnings of each airline, it moves accordingly.
+    I downloaded the [asd]("https://www.google.com/")
+    
     """
 
 The_Abstract_row = dbc.Row(
@@ -99,11 +119,11 @@ for symbol in y_test_y_pred_df_dict.keys():
     fig1 = dcc.Graph(
                 figure={
                     'data': [
-                        {'x': show_df.index.values, 'y': show_df["y test"].values,
+                        {'x': show_df.index, 'y': show_df["y test"].values,
                             'type': 'scatter', 'name': 'Stock Price'},
-                        {'x': show_df.index.values, 'y': show_df["y pred"],
+                        {'x': show_df.index, 'y': show_df["y pred"],
                          'type': 'scatter', 'name': 'Predicted'},
-                        {'x': show_df.index.values, 'y': [show_df["y pred"].mean()]*len(show_df["y pred"]),
+                        {'x': show_df.index, 'y': [show_df["y test"].mean()]*len(show_df["y pred"]),
                          'type': 'scatter', 'name': 'Mean'},
                     ],
                     # 'data': [
@@ -130,11 +150,11 @@ for symbol in y_test_y_pred_df_dict.keys():
     fig2 = dcc.Graph(
                 figure={
                     'data': [
-                        {'x': show_df_all.index.values, 'y': show_df_all["y test"].values,
+                        {'x': show_df_all.index, 'y': show_df_all["y test"].values,
                             'type': 'scatter', 'name': 'Stock Price'},
-                        {'x': show_df_all.index.values, 'y': show_df_all["y pred"],
+                        {'x': show_df_all.index, 'y': show_df_all["y pred"],
                          'type': 'scatter', 'name': 'Predicted'},
-                        {'x': show_df_all.index.values, 'y': [show_df_all["y pred"].mean()]*len(show_df_all["y pred"]),
+                        {'x': show_df_all.index, 'y': [show_df_all["y test"].mean()]*len(show_df_all["y pred"]),
                          'type': 'scatter', 'name': 'Mean'},
                     ],
                     # 'data': [
@@ -179,6 +199,28 @@ for symbol in y_test_y_pred_df_dict.keys():
         }
     ]
 
+    table_columns2 = [
+        "Baseline mean, MAE",
+        "Baseline mean, MSE",
+        "Baseline median, MAE",
+        "Baseline median, MSE",
+        "After modeling, MAE",
+        "After modeling, MSE",
+        "After modeling, R2"
+        ]
+    # set_trace()
+    table_data2 = [
+        {
+            "Baseline mean, MAE": mean_absolute_error(show_df_all["y test"], [show_df_all["y test"].mean()]*len(show_df_all["y test"])),
+            "Baseline mean, MSE": mean_squared_error(show_df_all["y test"], [show_df_all["y test"].mean()]*len(show_df_all["y test"])),
+            "Baseline median, MAE": mean_absolute_error(show_df_all["y test"], [show_df_all["y test"].median()]*len(show_df_all["y test"])),
+            "Baseline median, MSE": mean_squared_error(show_df_all["y test"], [show_df_all["y test"].median()]*len(show_df_all["y test"])),
+            "After modeling, MAE": mean_absolute_error(show_df_all["y test"], show_df_all["y pred"]),
+            "After modeling, MSE": mean_squared_error(show_df_all["y test"], show_df_all["y pred"]),
+            "After modeling, R2": r2_score(show_df_all["y test"], show_df_all["y pred"])
+        }
+    ]
+
     # table_data = [
     #     {
     #         "Baseline mean, MAE": "2",
@@ -210,16 +252,10 @@ for symbol in y_test_y_pred_df_dict.keys():
                     data=table_data1,
                  ),
                 fig2,
-                # # html.Div(
-                # #     # html.P(correlation, style={"color": "red", "text-align": "center", "font-size": 20}),
-                # #     html.P("correlation", style={"color": "red", "text-align": "center", "font-size": 20}),
-                # #     # style={"text"}
-                # # )
-
-                # dash_table.DataTable(
-                #     columns=[{"name": i, "id": i} for i in table_columns1],
-                #     data=table_data1,
-                # )
+                dash_table.DataTable(
+                    columns=[{"name": i, "id": i} for i in table_columns2],
+                    data=table_data2,
+                 ),
             ]
         ))
     )
@@ -229,9 +265,6 @@ row3 = dcc.Tabs(list_of_tabs, style={"margin": "auto"})
 
 #### <<<<~~~~----( Tabbed graph 2 )----~~~~>>>> ####
 
-X_all = pd.read_csv("X_all.csv")
-y_all = pd.read_csv("y_all.csv")
-date_all = pd.read_csv("date_all.csv")
 
 y_test_y_pred_df_dict_random_forest = load_object("y_test_y_pred_df_dict_random_forest.pickl")
 random_forest_models_df = load_object("random_forest_models_df.pickl")
@@ -240,11 +273,16 @@ list_of_tabs = []
 for symbol in y_test_y_pred_df_dict_random_forest.keys():
     # data_tmp = final_data_dict[symbol]
     # fig3 = go.Figure()
-    model = random_forest_models_df[symbol]
+    rf_model = random_forest_models_df[symbol]
     show_df = y_test_y_pred_df_dict_random_forest[symbol]
     # fig1.add_trace(go.Scatter(x=show_df.index, y=show_df["y test"], name='predicted'))
     # fig1.add_trace(go.Scatter(x=show_df.index, y=show_df["y pred"], name='real'))
     # set_trace
+
+    show_df_all = pd.DataFrame({"y test": y_all.values.flatten(), "y pred": rf_model.predict(X_all)}, index=date_all)
+
+
+
     fig3 = dcc.Graph(
                 figure={
                     'data': [
@@ -252,7 +290,7 @@ for symbol in y_test_y_pred_df_dict_random_forest.keys():
                             'type': 'scatter', 'name': 'Stock Price'},
                         {'x': show_df.index, 'y': show_df["y pred"],
                          'type': 'scatter', 'name': 'Predicted'},
-                        {'x': show_df.index, 'y': [show_df["y pred"].mean()]*len(show_df["y pred"]),
+                        {'x': show_df.index, 'y': [show_df["y test"].mean()]*len(show_df["y pred"]),
                          'type': 'scatter', 'name': 'Mean'},
                     ],
                     'layout': {
@@ -263,10 +301,30 @@ for symbol in y_test_y_pred_df_dict_random_forest.keys():
                         'yaxis': {
                             'title': 'y value'
                         },
-                        'annotations': 'Text G'
                     },
                 }
             )
+    fig4 = dcc.Graph(
+            figure={
+                'data': [
+                    {'x': show_df_all.index, 'y': show_df_all["y test"].values,
+                        'type': 'scatter', 'name': 'Stock Price'},
+                    {'x': show_df_all.index, 'y': show_df_all["y pred"],
+                        'type': 'scatter', 'name': 'Predicted'},
+                    {'x': show_df_all.index, 'y': [show_df_all["y test"].mean()]*len(show_df_all["y pred"]),
+                        'type': 'scatter', 'name': 'Mean'},
+                    ],
+                'layout': {
+                    'title': list_of_publicly_traded_airlines[symbol],
+                    'xaxis': {
+                        'title': 'Date'
+                    },
+                    'yaxis': {
+                        'title': 'y value'
+                    },
+                },
+            }
+        )
 
     # fig2 = dcc.Graph(id='regression-{}'.format(symbol)),
     # slider2 = dcc.Slider(
@@ -299,17 +357,7 @@ for symbol in y_test_y_pred_df_dict_random_forest.keys():
         }
     ]
 
-    # table_data = [
-    #     {
-    #         "Baseline mean, MAE": "2",
-    #         "Baseline mean, MSE": "2",
-    #         "Baseline median, MAE": "2",
-    #         "Baseline median, MSE": "2",
-    #         "After modeling, MAE": "2",
-    #         "After modeling, MSE": "2",
-    #         "After modeling, R2": "2"
-    #     }
-    # ]
+
 
     # table_data = dict(zip(table_columns, table_data))
 
@@ -329,7 +377,7 @@ for symbol in y_test_y_pred_df_dict_random_forest.keys():
                     columns=[{"name": i, "id": i} for i in table_columns3],
                     data=table_data3,
                 ),
-                fig3,
+                fig4,
                 # html.Div(
                 #     # html.P(correlation, style={"color": "red", "text-align": "center", "font-size": 20}),
                 #     html.P("correlation", style={"color": "red", "text-align": "center", "font-size": 20}),
