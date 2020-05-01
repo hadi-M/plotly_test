@@ -72,6 +72,8 @@ def display_page(pathname):
         return insights.layout
     elif pathname == '/process':
         return process.layout
+    elif pathname == '/index2':
+        return index2.layout
     else:
         return dcc.Markdown('## Page not found')
 
