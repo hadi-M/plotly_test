@@ -105,5 +105,4 @@ venv.bak/
 # mypy
 .mypy_cache/
 y_test_y_pred_df_dict.pickl
-date_all.csv
 data/data.csv
