@@ -26,6 +26,8 @@ def load_object(file_name):
     return obj
 
 
+#### <<<<~~~~----( The Abstract )----~~~~>>>> ####
+
 The_Abstract_markdown = \
     """
     ## The Abstract
@@ -35,18 +37,8 @@ The_Abstract_markdown = \
     * Sum of the distance of all passenger travelled for each month
     * Sum of the distance of all mails that was moved for each month
     * Sum of the distance of all freight (cargo) travelled for each month
-
-    """
-
-#### <<<<~~~~----( The Why )----~~~~>>>> ####
-
-The_Why_markdown = \
-    """
-
-    ## The Why
-    This happens to everyone who is learning coding out there. While learning something new, you just start confirming concepts you just learnt, to see that they really work as they are intended, by
-    connecting those concepts to stuff that you've already confirmed, and you are familiar with them.\n
-    Here I wanted to confirm the little knowledge I have of finance by using regression.
+    \n
+    \n
     """
 
 The_Abstract_row = dbc.Row(
@@ -61,6 +53,27 @@ The_Abstract_row = dbc.Row(
 
 #### <<<<~~~~----( The Why )----~~~~>>>> ####
 
+The_Why_markdown = \
+    """
+
+    ## The Why
+    This happens to everyone who is learning coding out there. While learning something new, you just start confirming concepts you just learnt, to see that they really work as they are intended, by
+    connecting those concepts to stuff that you've already confirmed, and you are familiar with them.\n
+    Here I wanted to confirm the little knowledge I have of finance by using regression.
+    """
+
+The_Why_row = dbc.Row(
+    [
+        dcc.Markdown(
+            The_Why_markdown
+        ),
+        # dcc.Link(dbc.Button('Your Call To Action', color='primary'), href='/predictions')
+    ],
+    style={"font-family": "Times New Roman", "font-size": "21px"}
+)
+
+#### <<<<~~~~----( The How )----~~~~>>>> ####
+
 The_How_markdown = \
     """
 
@@ -70,16 +83,19 @@ The_How_markdown = \
     I could download them by manually but I used selenium to download the files automatically, eventhough it took more time. It was neater.
     Then I unzipped them, and merged them via code, so basically just running my python notebook file, would give you all the data and the models.
     \n 
-    After reading the data and cleaning it
+    After reading the data I had to clean it, and honsetly there are not much null values (<%2), so I just dropped them.
+    Then I created 3 new features for each flight. They are mentioned in the abstract, but I refer them here agian:
+    * Sum of the distance of all passenger travelled for each month
+    * Sum of the distance of all mails that was moved for each month
+    * Sum of the distance of all freight (cargo) travelled for each month
+    \n
     Then since each airline has multiple flights per month, I grouped the whole dataset based on carrier name, year nad month.
-    then created a 
-    
     """
 
-The_Abstract_row = dbc.Row(
+The_How_row = dbc.Row(
     [
         dcc.Markdown(
-            The_Abstract_markdown
+            The_How_markdown
         ),
         # dcc.Link(dbc.Button('Your Call To Action', color='primary'), href='/predictions')
     ],
@@ -267,7 +283,7 @@ for symbol in y_test_y_pred_df_dict_linear_regression.keys():
     )
 
 
-row3 = dcc.Tabs(list_of_tabs, style={"margin": "auto"})
+row3 = dcc.Tabs(list_of_tabs, style={"margin": "20 auto 20 auto"})
 
 #### <<<<~~~~----( Tabbed graph 2 )----~~~~>>>> ####
 
@@ -399,7 +415,7 @@ for symbol in y_test_y_pred_df_dict_random_forest.keys():
     )
 
 
-row4 = dcc.Tabs(list_of_tabs, style={"margin": "auto"})
+row4 = dcc.Tabs(list_of_tabs, style={"margin": "20 auto 20 auto"})
 
 # fig = go.Figure()
 # fig.add_trace(go.Scatter(x=date_all.Date, y=y_all.Close, name='y_pred_all'))
@@ -415,19 +431,19 @@ row4 = dcc.Tabs(list_of_tabs, style={"margin": "auto"})
 # fig_oo = px.scatter(gapminder.query("year==2007"), x="gdpPercap", y="lifeExp", size="pop", color="continent",
 #            hover_name="country", log_x=True, size_max=60)
 
-column2 = dcc.Markdown('''
-
-Inline code snippet: `True`
-
-Block code snippet:
+Code1 = dcc.Markdown('''
 ```py
-import dash
-
-external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
-
-app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
+def get_data():
+    # check if final concatinated data.csv is already made
+    if not check_if_final_csv_is_made():
+        # check if zip files are downloaded
+        if not check_if_file_are_downloaded():
+            initate_browser()
+            download_files()
+        concatinate_files()
+        remove_extra_zip_files()
 ```
-''')
+''', style={"font-size": 20})
 
 # row3 = dbc.Row(
 #     [
@@ -446,4 +462,4 @@ app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
 
 
 
-layout = [The_Abstract_row, row3, column2, column2, row4]
+layout = [The_Abstract_row, The_Why_row, Code1, The_How_row, row3, row4]
